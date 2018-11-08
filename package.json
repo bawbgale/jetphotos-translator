@@ -21,12 +21,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/icole/jetphotos-translator.git"
+    "url": "git+https://github.com/bawbgale/jetphotos-translator.git"
   },
-  "author": "",
+  "author": "Ian Cole, Bob Gale",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/icole/jetphotos-translator/issues"
+    "url": "https://github.com/bawbgale/jetphotos-translator/issues"
   },
-  "homepage": "https://github.com/icole/jetphotos-translator#readme"
+  "homepage": "https://github.com/bawbgale/jetphotos-translator#readme"
 }
