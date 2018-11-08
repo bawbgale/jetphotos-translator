@@ -4,14 +4,19 @@ const cheerio = require('cheerio')
 
 module.exports.getjetphoto = async (event, context, callback) => {
   const tailNum = event.tailNum
+  return fetchJetPhotos(tailNum, (result) => {
+    context.succeed(wrapHtml(result[0]))
+  })
+}
+
+function fetchJetPhotos (tailNum, callback) {
   return request(jetPhotosUrl(tailNum))
     .then(({ data }) => {
       const photos = extractPhotos(data)
-      var html = wrapHtml(photos[0])
-      context.succeed(html)
+      callback(photos)
     })
     .catch((err) => {
-      context.succeed(err.response)
+      callback(err.response)
     })
 }
 
