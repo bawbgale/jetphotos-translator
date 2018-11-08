@@ -6,12 +6,7 @@ module.exports.getjetphoto = async (event, context, callback) => {
   const tailNum = event.tailNum
   return request(jetPhotosUrl(tailNum))
     .then(({ data }) => {
-      const $ = cheerio.load(data)
-      const photoElements = $('img.result__photo')
-      const photos = []
-      photoElements.each((i, el) => {
-        photos.push($(el).attr('src'))
-      })
+      const photos = extractPhotos(data)
       var html = wrapHtml(photos[0])
       context.succeed(html)
     })
@@ -19,8 +14,19 @@ module.exports.getjetphoto = async (event, context, callback) => {
       context.succeed(err.response)
     })
 }
+
 function jetPhotosUrl (tailNum) {
   return `https://www.jetphotos.com/photo/keyword/${tailNum}`
+}
+
+function extractPhotos (data) {
+  const $ = cheerio.load(data)
+  const photoElements = $('img.result__photo')
+  const photos = []
+  photoElements.each((i, el) => {
+    photos.push($(el).attr('src'))
+  })
+  return photos
 }
 
 function wrapHtml (photo) {
