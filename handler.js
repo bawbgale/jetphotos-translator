@@ -12,13 +12,13 @@ module.exports.getjetphoto = async (event, context, callback) => {
       photoElements.each((i, el) => {
         photos.push($(el).attr('src'))
       })
-      var html = wrapHtml(photos)
+      var html = wrapHtml(photos[0])
       context.succeed(html)
     })
     .catch((err) => {
       context.succeed(err.response)
     })
 }
-function wrapHtml (photos) {
-  return `<html><img style="max-width: 500px;" src="${photos[0]}"/></html>`
+function wrapHtml (photo) {
+  return `<html><img style="max-width: 500px;" src="${photo}"/></html>`
 }
