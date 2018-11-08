@@ -4,7 +4,7 @@ const cheerio = require('cheerio')
 
 module.exports.getjetphoto = async (event, context, callback) => {
   const tailNum = event.tailNum
-  return request(`https://www.jetphotos.com/photo/keyword/${tailNum}`)
+  return request(jetPhotosUrl(tailNum))
     .then(({ data }) => {
       const $ = cheerio.load(data)
       const photoElements = $('img.result__photo')
@@ -19,6 +19,10 @@ module.exports.getjetphoto = async (event, context, callback) => {
       context.succeed(err.response)
     })
 }
+function jetPhotosUrl (tailNum) {
+  return `https://www.jetphotos.com/photo/keyword/${tailNum}`
+}
+
 function wrapHtml (photo) {
   return `<html><img style="max-width: 500px;" src="${photo}"/></html>`
 }
