@@ -3,7 +3,7 @@ const retriever = require('./retriever.js')
 
 module.exports.getjetphoto = async (event, context, callback) => {
   const tailNum = event.tailNum
-  return retriever.fetchJetPhotos(tailNum, (result) => {
+  return retriever.getjetphotos(tailNum, (result) => {
     context.succeed(wrapHtml(result[0]))
   })
 }

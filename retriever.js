@@ -2,7 +2,7 @@
 const request = require('axios')
 const cheerio = require('cheerio')
 
-module.exports.fetchJetPhotos = async (tailNum, callback) => {
+module.exports.getjetphotos = async (tailNum, callback) => {
   return request(jetPhotosUrl(tailNum))
     .then(({ data }) => {
       const photos = extractPhotos(data)
