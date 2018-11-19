@@ -8,8 +8,15 @@ module.exports.getjetphotos = async (tailNum, callback) => {
       const photos = extractPhotos(data)
       callback(photos)
     })
-    .catch((err) => {
-      callback(err.response)
+    .catch((error) => {
+      if (error.response) {
+        callback(new Error(`Request was made and server responded ${error.response.status}`))
+      } else if (error.request) {
+        callback(new Error('Request was made but no response was received'))
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        callback(error.message)
+      }
     })
 }
 
