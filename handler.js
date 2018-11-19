@@ -9,5 +9,5 @@ module.exports.getjetphoto = async (event, context, callback) => {
 }
 
 function wrapHtml (photo) {
-  return `<html><img style="max-width: 500px;" src="${photo}"/></html>`
+  return `<html><img style="max-width: 500px;" src="https:${photo}"/></html>`
 }
