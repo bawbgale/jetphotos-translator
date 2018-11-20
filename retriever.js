@@ -21,7 +21,7 @@ module.exports.getjetphotos = async (tailNum, callback) => {
 }
 
 function jetPhotosUrl (tailNum) {
-  return `https://www.jetphotos.com/photo/keyword/${tailNum}`
+  return `https://www.jetphotos.com/showphotos.php?aircraft=all&airline=all&country-location=all&photographer-group=all&category=all&keywords-type=reg&keywords-contain=0&keywords=${tailNum}&photo-year=all&genre=all&search-type=Advanced&sort-order=0`
 }
 
 function extractPhotos (data) {
