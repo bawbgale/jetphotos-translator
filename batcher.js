@@ -12,6 +12,7 @@ module.exports.getjetphotobatch = (inputFile = 'tail_numbers.csv', tailNumCol = 
     Papa.parse(fileData, {
       header: true,
       skipEmptyLines: true,
+      preview: 900, // getting errors with 1000+ rows
       error: (err) => {
         throw err
       },
@@ -57,6 +58,7 @@ module.exports.getjetphotobatch = (inputFile = 'tail_numbers.csv', tailNumCol = 
             row['Status'] = aircraftListWithPhotos.find(photoRow => photoRow.tailNum === row[tailNumCol]).status
             return row
           })
+          console.log(`Processed ${aircraftListWithPhotos.length} tail numbers`)
 
           // dump all the photos urls to a separate table
           let photosUrlList = []
@@ -71,6 +73,7 @@ module.exports.getjetphotobatch = (inputFile = 'tail_numbers.csv', tailNumCol = 
               photosUrlList.push.apply(photosUrlList, photoArray)
             }
           }
+          console.log(`Retrieved ${photosUrlList.length} photo URLs`)
 
           outputCsv('status', aircraftStatusList)
           outputCsv('photos', photosUrlList)
