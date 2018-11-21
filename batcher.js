@@ -35,7 +35,16 @@ module.exports.getjetphotobatch = (inputFile = 'tail_numbers.csv', tailNumCol = 
 
         const startTime = new Date()
         let aircraftList = results.data
-        let aircraftListWithPhotos = aircraftList.map(row => {
+
+        // don't reprocess tail numbers that were successfully processed before
+        let unprocessedAircraft = []
+        if (results.meta.fields.includes('Status')) {
+          unprocessedAircraft = aircraftList.filter(row => !['Success', 'No photos'].includes(row['Status']))
+        } else {
+          unprocessedAircraft = aircraftList
+        }
+
+        let aircraftListWithPhotos = unprocessedAircraft.map((row, i) => {
           // return an array of promises that will get resolved with retriever responds
           return new Promise((resolve, reject) => {
             let tailNum = row[tailNumCol]
@@ -48,7 +57,7 @@ module.exports.getjetphotobatch = (inputFile = 'tail_numbers.csv', tailNumCol = 
               }
               let endTime = new Date()
               let timeDiff = endTime - startTime
-              let info = `(${i} of ${aircraftList.length} at ${timeDiff} ms) ${tailNum}: `
+              let info = `(${i} of ${unprocessedAircraft.length} at ${timeDiff} ms) ${tailNum}: `
               // catch any errors (i.e. not an array)
               if (!Array.isArray(result)) {
                 aircraftListItem.status = `Retriever error ${result}`
@@ -71,8 +80,11 @@ module.exports.getjetphotobatch = (inputFile = 'tail_numbers.csv', tailNumCol = 
         // write output after all promises resolved
         Promise.all(aircraftListWithPhotos).then(aircraftListWithPhotos => {
           // create an log file with all the original rows plus status
+          // pass through previous successful status if it was in original file
           let aircraftStatusList = aircraftList.map(row => {
-            row['Status'] = aircraftListWithPhotos.find(photoRow => photoRow.tailNum === row[tailNumCol]).status
+            if (aircraftListWithPhotos.find(photoRow => photoRow.tailNum === row[tailNumCol])) {
+              row['Status'] = aircraftListWithPhotos.find(photoRow => photoRow.tailNum === row[tailNumCol]).status
+            }
             return row
           })
           console.log(`Processed ${aircraftListWithPhotos.length} tail numbers`)
