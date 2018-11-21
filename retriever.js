@@ -10,7 +10,7 @@ module.exports.getjetphotos = async (tailNum, callback) => {
     })
     .catch((error) => {
       if (error.response) {
-        callback(new Error(`Request was made and server responded ${error.response.status}`))
+        callback(new Error(error.response.status))
       } else if (error.request) {
         callback(new Error('Request was made but no response was received'))
       } else {
