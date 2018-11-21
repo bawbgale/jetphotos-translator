@@ -33,6 +33,7 @@ module.exports.getjetphotobatch = (inputFile = 'tail_numbers.csv', tailNumCol = 
         if (!results.meta.fields.includes(tailNumCol)) throw new Error(`Column '${tailNumCol}' not found!`)
         if (results.errors.length > 0) console.log('Parsing errors:', '\n', results.errors)
 
+        const startTime = new Date()
         let aircraftList = results.data
         let aircraftListWithPhotos = aircraftList.map(row => {
           // return an array of promises that will get resolved with retriever responds
@@ -45,20 +46,25 @@ module.exports.getjetphotobatch = (inputFile = 'tail_numbers.csv', tailNumCol = 
                 status: null,
                 photoUrlBatch: null
               }
+              let endTime = new Date()
+              let timeDiff = endTime - startTime
+              let info = `(${i} of ${aircraftList.length} at ${timeDiff} ms) ${tailNum}: `
               // catch any errors (i.e. not an array)
               if (!Array.isArray(result)) {
-                aircraftListItem.status = 'Retriever error'
-                console.log(`${tailNum}: Retriever error`, '\n', result)
+                aircraftListItem.status = `Retriever error ${result}`
+                console.log(info, `Retriever error ${result}`)
+                resolve(aircraftListItem)
               } else if (result.length === 0) {
                 aircraftListItem.status = 'No photos'
-                console.log(`${tailNum}: No photos :-(`)
+                console.log(info, `No photos :-(`)
+                resolve(aircraftListItem)
               } else {
                 // if we got photo urls, add them to response
                 aircraftListItem.status = 'Success'
                 aircraftListItem.photoUrlBatch = result
-                console.log(`${tailNum}: Retrieved ${result.length} photo URLs`)
+                console.log(info, `Retrieved ${result.length} photo URLs`)
+                resolve(aircraftListItem)
               }
-              resolve(aircraftListItem)
             })
           })
         })
