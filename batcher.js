@@ -2,6 +2,17 @@
 const fs = require('fs')
 const Papa = require('papaparse')
 const retriever = require('./retriever.js')
+const Bottleneck = require('bottleneck')
+
+let bottleneckRefreshInterval = 100 * 1000 // must be divisible by 250
+let bottleneckOptions = {
+  maxConcurrent: 1,
+  minTime: 200,
+  reservoir: 25, // initial value
+  reservoirRefreshAmount: 25,
+  reservoirRefreshInterval: bottleneckRefreshInterval
+}
+const limiter = new Bottleneck(bottleneckOptions)
 
 module.exports.getjetphotobatch = (inputFile = 'tail_numbers.csv', tailNumCol = 'Tail Number') => {
   // read filename from command line input (start with hardcoded file name)
@@ -28,7 +39,7 @@ module.exports.getjetphotobatch = (inputFile = 'tail_numbers.csv', tailNumCol = 
           return new Promise((resolve, reject) => {
             let tailNum = row[tailNumCol]
             // call jet photos retriever
-            retriever.getjetphotos(tailNum, (result) => {
+            limiter.submit(retriever.getjetphotos, tailNum, (result) => {
               let aircraftListItem = {
                 tailNum: tailNum,
                 status: null,
