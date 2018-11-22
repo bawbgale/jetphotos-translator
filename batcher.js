@@ -6,7 +6,7 @@ const Bottleneck = require('bottleneck')
 
 let bottleneckRefreshInterval = 100 * 1000 // must be divisible by 250
 let bottleneckOptions = {
-  maxConcurrent: 1,
+  maxConcurrent: 2,
   minTime: 200,
   reservoir: 25, // initial value
   reservoirRefreshAmount: 25,
@@ -104,13 +104,24 @@ module.exports.getjetphotobatch = (inputFile = 'tail_numbers.csv', tailNumCol = 
           }
           console.log(`Retrieved ${photosUrlList.length} photo URLs`)
 
-          outputCsv('status', aircraftStatusList)
-          outputCsv('photos', photosUrlList)
+          // path/foo.csv => path/foo.status.1.csv & path/foo.photos.1.csv
+          // path/foo.statusN.csv => path/foo.status.N+1.csv & path/foo.photos.N+1.csv
+          const [root, iteration] = filenameParser(inputFile)
+          outputCsv(aircraftStatusList, root, 'status', iteration)
+          outputCsv(photosUrlList, root, 'photos', iteration)
         })
 
-        const outputCsv = (suffix, data) => {
+        const filenameParser = (inputFile) => {
+          const re = /^(.*?)(\.status\.)?(\d*)(\.csv)$/i
+          let [match, root, suffix, n, ext] = inputFile.match(re)
+          let increment = n ? ++n : 1
+          return [root, increment]
+        }
+
+        const outputCsv = (data, root, suffix, iteration) => {
           let csv = Papa.unparse(data)
-          let filename = inputFile.replace(/(\.csv)$/gi, `_${suffix}.csv`)
+          let filename = root + '.' + suffix + '.' + iteration + '.csv'
+          console.log(filename)
           fs.writeFile(filename, csv, (err) => {
             if (err) throw err
             console.log('Saved file:', filename)
