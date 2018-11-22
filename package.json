@@ -5,6 +5,7 @@
   "main": "handler.js",
   "dependencies": {
     "axios": "^0.18.0",
+    "bottleneck": "^2.13.0",
     "cheerio": "^1.0.0-rc.2",
     "fs": "0.0.1-security",
     "make-runnable": "^1.3.6",
