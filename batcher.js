@@ -112,8 +112,8 @@ module.exports.getjetphotobatch = (inputFile = 'tail_numbers.csv', tailNumCol = 
         })
 
         const filenameParser = (inputFile) => {
-          const re = /^(.*?)(\.status\.)?(\d*)(\.csv)$/i
-          let [match, root, suffix, n, ext] = inputFile.match(re)
+          const re = /^(.*?)(?:\.status\.(\d*))?(?:\.csv)$/i
+          let [, root, n] = inputFile.match(re)
           let increment = n ? ++n : 1
           return [root, increment]
         }
