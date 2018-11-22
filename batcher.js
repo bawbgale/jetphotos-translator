@@ -6,7 +6,7 @@ const Bottleneck = require('bottleneck')
 
 let bottleneckRefreshInterval = 100 * 1000 // must be divisible by 250
 let bottleneckOptions = {
-  maxConcurrent: 2,
+  maxConcurrent: 1,
   minTime: 200,
   reservoir: 25, // initial value
   reservoirRefreshAmount: 25,
@@ -34,6 +34,7 @@ module.exports.getjetphotobatch = (inputFile = 'tail_numbers.csv', tailNumCol = 
         if (results.errors.length > 0) console.log('Parsing errors:', '\n', results.errors)
 
         const startTime = new Date()
+        let errorCount = 0
         let aircraftList = results.data
 
         // don't reprocess tail numbers that were successfully processed before
@@ -57,11 +58,12 @@ module.exports.getjetphotobatch = (inputFile = 'tail_numbers.csv', tailNumCol = 
               }
               let endTime = new Date()
               let timeDiff = endTime - startTime
-              let info = `(${i} of ${unprocessedAircraft.length} at ${timeDiff} ms) ${tailNum}: `
+              let info = `(${i} of ${unprocessedAircraft.length} at ${timeDiff} ms) ${tailNum}:`
               // catch any errors (i.e. not an array)
               if (!Array.isArray(result)) {
                 aircraftListItem.status = `Retriever error ${result}`
                 console.log(info, `Retriever error ${result}`)
+                errorCount++
                 resolve(aircraftListItem)
               } else if (result.length === 0) {
                 aircraftListItem.status = 'No photos'
@@ -109,6 +111,12 @@ module.exports.getjetphotobatch = (inputFile = 'tail_numbers.csv', tailNumCol = 
           const [root, iteration] = filenameParser(inputFile)
           outputCsv(aircraftStatusList, root, 'status', iteration)
           outputCsv(photosUrlList, root, 'photos', iteration)
+
+          if (errorCount > 0) {
+            console.log(`Encountered ${errorCount} errors`)
+            console.log(`You can retry only those tail numbers by running:`)
+            console.log(`node batcher.js getjetphotobatch '${root}.status.${iteration}.csv' '${tailNumCol}'`)
+          }
         })
 
         const filenameParser = (inputFile) => {
@@ -121,7 +129,7 @@ module.exports.getjetphotobatch = (inputFile = 'tail_numbers.csv', tailNumCol = 
         const outputCsv = (data, root, suffix, iteration) => {
           let csv = Papa.unparse(data)
           let filename = root + '.' + suffix + '.' + iteration + '.csv'
-          console.log(filename)
+          // console.log(filename)
           fs.writeFile(filename, csv, (err) => {
             if (err) throw err
             console.log('Saved file:', filename)
