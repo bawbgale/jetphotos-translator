@@ -58,7 +58,7 @@ module.exports.getjetphotobatch = (inputFile = 'tail_numbers.csv', tailNumCol = 
               }
               let endTime = new Date()
               let timeDiff = endTime - startTime
-              let info = `(${i} of ${unprocessedAircraft.length} at ${timeDiff} ms) ${tailNum}:`
+              let info = `(${i + 1} of ${unprocessedAircraft.length} at ${timeDiff} ms) ${tailNum}:`
               // catch any errors (i.e. not an array)
               if (!Array.isArray(result)) {
                 aircraftListItem.status = `Retriever error ${result}`
