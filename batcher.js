@@ -129,7 +129,6 @@ module.exports.getjetphotobatch = (inputFile = 'tail_numbers.csv', tailNumCol = 
         const outputCsv = (data, root, suffix, iteration) => {
           let csv = Papa.unparse(data)
           let filename = root + '.' + suffix + '.' + iteration + '.csv'
-          // console.log(filename)
           fs.writeFile(filename, csv, (err) => {
             if (err) throw err
             console.log('Saved file:', filename)
