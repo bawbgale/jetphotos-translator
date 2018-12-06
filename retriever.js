@@ -3,25 +3,34 @@ const request = require('axios')
 const cheerio = require('cheerio')
 
 module.exports.getjetphotos = async (tailNum, callback) => {
+  console.log(`Retriever received tailNum ${tailNum}`)
   return request(jetPhotosUrl(tailNum))
     .then(({ data }) => {
+      console.log(`Retriever request responded with data of length ${Object.keys(data).length}`)
       const photos = extractPhotos(data)
       callback(photos)
     })
     .catch((error) => {
+      let err
       if (error.response) {
-        callback(new Error(error.response.status))
+        err = new Error(error.response.status)
+        console.log(`Retriever request responded with error ${err}`)
       } else if (error.request) {
-        callback(new Error('Request was made but no response was received'))
+        err = new Error('Request was made but no response was received')
+        console.log(err)
       } else {
         // Something happened in setting up the request that triggered an Error
-        callback(error.message)
+        err = error.message
+        console.log(err)
       }
+      callback(err)
     })
 }
 
 function jetPhotosUrl (tailNum) {
-  return `https://www.jetphotos.com/registration/${tailNum}`
+  const requestUrl = `https://www.jetphotos.com/registration/${tailNum}`
+  console.log(`Retriever requested URL ${requestUrl}`)
+  return requestUrl
 }
 
 function extractPhotos (data) {
