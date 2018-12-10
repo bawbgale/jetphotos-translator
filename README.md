@@ -2,8 +2,18 @@
 
 Uses [Serverless](https://serverless.com/) framework
 
+## Deploying to AWS or Azure
+
+The function will work on either AWS or Azure but needs different `serverless.yml` configs. There isn't an effective way to combine these, so we have separate `serverless-aws.yml` and `serverless-azure.yml` files and a script to swap them before deploying:
+
+`./deploy.sh aws` or `./deploy.sh azure`
+
+which pretty much just does:
+
+`cp serverless-$1.yml serverless.yml && sls deploy`
+
 ## Invoke Photo function locally
-`serverless invoke local --function getjetphoto --data '{"tailNum": "<registraion number>"}'`
+`serverless invoke local --function getjetphoto --data '{"tailNum": "<registration number>"}'`
 
 ## Invoke on batch of tail numbers in CSV file 
 `node batcher.js getjetphotobatch [path_to_input_file (default: tail_numbers.csv)] [tail_number_column (default: 'Tail Number')]`
