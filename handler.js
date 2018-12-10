@@ -3,6 +3,7 @@ const path = require('path')
 const retriever = require(path.join(__dirname, '//retriever.js'))
 
 module.exports.getjetphoto = async (event, context, callback) => {
+  if (event.tailNum) {
   const tailNum = event.tailNum
   return retriever.getjetphotos(tailNum, (result) => {
     if (!Array.isArray(result)) {
@@ -16,6 +17,11 @@ module.exports.getjetphoto = async (event, context, callback) => {
       callback(null, wrapHtml(imgTag(result[0])))
     }
   })
+  } else {
+    console.log('No tailNum')
+    callback(null, 'Please pass a tail number on the query string or in the request body')
+  }
+}
 }
 
 function imgTag (photo) {
