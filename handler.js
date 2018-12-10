@@ -1,5 +1,6 @@
 'use strict'
-const retriever = require('./retriever.js')
+const path = require('path')
+const retriever = require(path.join(__dirname, '//retriever.js'))
 
 module.exports.getjetphoto = async (event, context, callback) => {
   const tailNum = event.tailNum
