@@ -6,10 +6,12 @@ module.exports.getjetphoto = async (event, context, callback) => {
   let response = { headers: { 'Content-Type': 'text/html' } }
   if (event.tailNum || event.queryStringParameters.tailNum || JSON.parse(event.body).tailNum) {
     const tailNum = (event.tailNum || event.queryStringParameters.tailNum || JSON.parse(event.body).tailNum)
-    return retriever.getjetphotos(tailNum, (result) => {
+    await retriever.getjetphotos(tailNum, (result) => {
       if (!Array.isArray(result)) {
         console.log(`Retriever error ${result}`)
-        callback(new Error(result))
+        response.statusCode = result.match(/\[(\d+)\]/)[1] || 400
+        response.body = result
+        callback(null, response)
       } else if (result.length === 0) {
         console.log(`No photos :-(`)
         response.statusCode = 204
@@ -33,13 +35,13 @@ module.exports.getjetphoto = async (event, context, callback) => {
 module.exports.getjetphotoazure = async (context, req) => {
   if (req.query.tailNum || req.body.tailNum) {
     const tailNum = (req.query.tailNum || req.body.tailNum)
-    return retriever.getjetphotos(tailNum, (result) => {
+    await retriever.getjetphotos(tailNum, (result) => {
       if (!Array.isArray(result)) {
         context.log(`Retriever error ${result}`)
         return context.res
-          .status(400)
+          .status(result.match(/\[(\d+)\]/)[1] || 400)
           .type('text/html')
-          .send(new Error(result))
+          .send(result)
       } else if (result.length === 0) {
         context.log('No photos :-(')
         return context.res
