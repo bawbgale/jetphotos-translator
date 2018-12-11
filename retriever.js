@@ -13,16 +13,14 @@ module.exports.getjetphotos = async (tailNum, callback) => {
     .catch((error) => {
       let err
       if (error.response) {
-        err = new Error(error.response.status)
-        console.log(`Retriever request responded with error ${err}`)
+        err = `[${error.response.status}] Retriever request responded with error ${error.response.status}`
       } else if (error.request) {
-        err = new Error('Request was made but no response was received')
-        console.log(err)
+        err = '[400] Request was made but no response was received'
       } else {
         // Something happened in setting up the request that triggered an Error
-        err = error.message
-        console.log(err)
+        err = `[400] ${error.message}`
       }
+      console.log(err)
       callback(err)
     })
 }
