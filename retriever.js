@@ -4,25 +4,24 @@ const cheerio = require('cheerio')
 
 module.exports.getjetphotos = async (tailNum, callback) => {
   console.log(`Retriever received tailNum ${tailNum}`)
-  return request(jetPhotosUrl(tailNum))
-    .then(({ data }) => {
-      console.log(`Retriever request responded with data of length ${Object.keys(data).length}`)
-      const photos = extractPhotos(data)
-      callback(photos)
-    })
-    .catch((error) => {
-      let err
-      if (error.response) {
-        err = `[${error.response.status}] Retriever request responded with error ${error.response.status}`
-      } else if (error.request) {
-        err = '[400] Request was made but no response was received'
-      } else {
-        // Something happened in setting up the request that triggered an Error
-        err = `[400] ${error.message}`
-      }
-      console.log(err)
-      callback(err)
-    })
+  try {
+    const response = await request(jetPhotosUrl(tailNum))
+    console.log(`Retriever request responded with data of length ${Object.keys(response.data).length}`)
+    const photos = extractPhotos(response.data)
+    callback(photos)
+  } catch (error) {
+    let err
+    if (error.response) {
+      err = `[${error.response.status}] Retriever request responded with error ${error.response.status}`
+    } else if (error.request) {
+      err = '[400] Request was made but no response was received'
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      err = `[400] ${error.message}`
+    }
+    console.log(err)
+    callback(err)
+  }
 }
 
 function jetPhotosUrl (tailNum) {
