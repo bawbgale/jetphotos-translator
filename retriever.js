@@ -2,13 +2,13 @@
 const request = require('axios')
 const cheerio = require('cheerio')
 
-module.exports.getjetphotos = async (tailNum, callback) => {
+module.exports.getjetphotos = async (tailNum) => {
   console.log(`Retriever received tailNum ${tailNum}`)
   try {
     const response = await request(jetPhotosUrl(tailNum))
     console.log(`Retriever request responded with data of length ${Object.keys(response.data).length}`)
     const photos = extractPhotos(response.data)
-    callback(photos)
+    return photos
   } catch (error) {
     let err
     if (error.response) {
@@ -20,7 +20,7 @@ module.exports.getjetphotos = async (tailNum, callback) => {
       err = `[400] ${error.message}`
     }
     console.log(err)
-    callback(err)
+    return err
   }
 }
 

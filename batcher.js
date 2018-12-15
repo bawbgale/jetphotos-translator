@@ -47,38 +47,38 @@ module.exports.getjetphotobatch = (inputFile = 'tail_numbers.csv', tailNumCol = 
 
         let aircraftListWithPhotos = unprocessedAircraft.map((row, i) => {
           // return an array of promises that will get resolved with retriever responds
-          return new Promise((resolve, reject) => {
+          return new Promise(async (resolve, reject) => {
             let tailNum = row[tailNumCol]
             // call jet photos retriever
-            limiter.submit(retriever.getjetphotos, tailNum, (result) => {
-              let aircraftListItem = {
-                tailNum: tailNum,
-                status: null,
-                photoUrlBatch: null
-              }
-              let endTime = new Date()
-              let timeDiff = endTime - startTime
-              let info = `(${i + 1} of ${unprocessedAircraft.length} at ${timeDiff} ms) ${tailNum}:`
-              // catch any errors (i.e. not an array)
-              if (!Array.isArray(result)) {
-                aircraftListItem.status = `Retriever error ${result}`
-                console.log(info, `Retriever error ${result}`)
-                errorCount++
-                resolve(aircraftListItem)
-              } else if (result.length === 0) {
-                aircraftListItem.status = 'No photos'
-                console.log(info, `No photos :-(`)
-                resolve(aircraftListItem)
-              } else {
-                // if we got photo urls, add them to response
-                aircraftListItem.status = 'Success'
-                aircraftListItem.photoUrlBatch = result
-                console.log(info, `Retrieved ${result.length} photo URLs`)
-                resolve(aircraftListItem)
-              }
-            })
+            const result = await limiter.schedule(() => retriever.getjetphotos(tailNum))
+            let aircraftListItem = {
+              tailNum: tailNum,
+              status: null,
+              photoUrlBatch: null
+            }
+            let endTime = new Date()
+            let timeDiff = endTime - startTime
+            let info = `(${i + 1} of ${unprocessedAircraft.length} at ${timeDiff} ms) ${tailNum}:`
+            // catch any errors (i.e. not an array)
+            if (!Array.isArray(result)) {
+              aircraftListItem.status = `Retriever error ${result}`
+              console.log(info, `Retriever error ${result}`)
+              errorCount++
+              resolve(aircraftListItem)
+            } else if (result.length === 0) {
+              aircraftListItem.status = 'No photos'
+              console.log(info, `No photos :-(`)
+              resolve(aircraftListItem)
+            } else {
+              // if we got photo urls, add them to response
+              aircraftListItem.status = 'Success'
+              aircraftListItem.photoUrlBatch = result
+              console.log(info, `Retrieved ${result.length} photo URLs`)
+              resolve(aircraftListItem)
+            }
           })
         })
+
         // write output after all promises resolved
         Promise.all(aircraftListWithPhotos).then(aircraftListWithPhotos => {
           // create an log file with all the original rows plus status
