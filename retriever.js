@@ -1,14 +1,25 @@
 'use strict'
+const path = require('path')
 const request = require('axios')
 const cheerio = require('cheerio')
+const cacher = require(path.join(__dirname, '//cacher.js'))
 
-module.exports.getjetphotos = async (tailNum) => {
-  console.log(`Retriever received tailNum ${tailNum}`)
+module.exports.getjetphotos = async (tailNum, useCache = false) => {
+  // console.log(`Retriever received tailNum ${tailNum}`)
+  // option to read from and write to local cache to avoid repeatedly re-requesting pages
+  const [err, page] = (useCache && cacher.exists(tailNum))
+    ? cacher.retrieve(tailNum)
+    : await retrieve(tailNum, useCache)
+  const photos = err || extractPhotos(page)
+  return photos
+}
+
+async function retrieve (tailNum, useCache = false) {
   try {
     const response = await request(jetPhotosUrl(tailNum))
-    console.log(`Retriever request responded with data of length ${Object.keys(response.data).length}`)
-    const photos = extractPhotos(response.data)
-    return photos
+    // console.log(`Retriever request responded with data of length ${Object.keys(response.data).length}`)
+    if (useCache) { cacher.save(tailNum, response.data) }
+    return [null, response.data]
   } catch (error) {
     let err
     if (error.response) {
@@ -19,14 +30,14 @@ module.exports.getjetphotos = async (tailNum) => {
       // Something happened in setting up the request that triggered an Error
       err = `[400] ${error.message}`
     }
-    console.log(err)
-    return err
+    console.log('Retriever error:', err)
+    return [err, null]
   }
 }
 
 function jetPhotosUrl (tailNum) {
   const requestUrl = `https://www.jetphotos.com/registration/${tailNum}`
-  console.log(`Retriever requested URL ${requestUrl}`)
+  // console.log(`Retriever requested URL ${requestUrl}`)
   return requestUrl
 }
 

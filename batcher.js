@@ -1,8 +1,10 @@
 'use strict'
+const path = require('path')
 const fs = require('fs')
 const Papa = require('papaparse')
-const retriever = require('./retriever.js')
 const Bottleneck = require('bottleneck')
+const retriever = require(path.join(__dirname, '//retriever.js'))
+const cacher = require(path.join(__dirname, '//cacher.js'))
 
 let bottleneckRefreshInterval = 100 * 1000 // must be divisible by 250
 let bottleneckOptions = {
@@ -50,7 +52,10 @@ module.exports.getjetphotobatch = (inputFile = 'tail_numbers.csv', tailNumCol = 
           return new Promise(async (resolve, reject) => {
             let tailNum = row[tailNumCol]
             // call jet photos retriever
-            const result = await limiter.schedule(() => retriever.getjetphotos(tailNum))
+            // for now, passing 'true' enables caching, which currently works locally but not on cloud
+            const [cached, result] = cacher.exists(tailNum)
+              ? [true, await retriever.getjetphotos(tailNum, true)]
+              : [false, await limiter.schedule(() => retriever.getjetphotos(tailNum, true))]
             let aircraftListItem = {
               tailNum: tailNum,
               status: null,
@@ -58,7 +63,7 @@ module.exports.getjetphotobatch = (inputFile = 'tail_numbers.csv', tailNumCol = 
             }
             let endTime = new Date()
             let timeDiff = endTime - startTime
-            let info = `(${i + 1} of ${unprocessedAircraft.length} at ${timeDiff} ms) ${tailNum}:`
+            let info = `(${i + 1} of ${unprocessedAircraft.length} at ${timeDiff} ms ${cached ? 'CACHED' : ''}) ${tailNum}:`
             // catch any errors (i.e. not an array)
             if (!Array.isArray(result)) {
               aircraftListItem.status = `Retriever error ${result}`

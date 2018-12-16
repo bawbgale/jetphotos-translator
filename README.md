@@ -1,5 +1,7 @@
 # jetphotos-translator
 
+Given an aircraft tail number, this gets photo urls from jetphotos.com
+
 Uses [Serverless](https://serverless.com/) framework
 
 ## Deploying to AWS or Azure
@@ -23,3 +25,5 @@ Processes a CSV file of tail numbers and outputs a CSV with potentially multiple
 Outputs two files:
 `<input_filename>_status.csv` - Copy of the input file with a 'Status' column appended
 `<imput_filename>_photos.csv` - All the retrieved photo URLs for each tail number that has photos. Columns: tailNum, photoUrl
+
+Batch mode now keeps a local cache of retrieved pages to avoid repeatedly re-requesting them.
