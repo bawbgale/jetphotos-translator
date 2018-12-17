@@ -4,6 +4,14 @@ const moxios = require('moxios')
 
 const retriever = require('../retriever.js')
 
+const mochaAsync = (fn) => {
+  return done => {
+    fn.call().then(done, err => {
+      done(err)
+    })
+  }
+}
+
 describe('getjetphotos', () => {
   beforeEach(() => {
     moxios.install()
@@ -13,7 +21,7 @@ describe('getjetphotos', () => {
     moxios.uninstall()
   })
 
-  it('extracts photo URLs from jetphotos', (done) => {
+  it('extracts photo URLs from jetphotos', mochaAsync(async () => {
     let mockData = `
         <html>
           <body>
@@ -37,15 +45,7 @@ describe('getjetphotos', () => {
 
     let tailNum = '1234'
     let expectedPhotos = ['photo_url1', 'photo_url2']
-
-    retriever.getjetphotos(tailNum, async (result) => {
-      try {
-        expect(result).to.eql(expectedPhotos)
-        return done()
-      } catch (e) {
-        // workaround for Mocha throwing unhandledRejection instead of failing test
-        return done(e)
-      }
-    })
-  })
+    const result = await retriever.getjetphotos(tailNum)
+    expect(result).to.eql(expectedPhotos)
+  }))
 })
