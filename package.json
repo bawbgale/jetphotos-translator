@@ -21,9 +21,10 @@
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-standard": "^4.0.0",
     "mocha": "^5.2.0",
+    "mock-fs": "^4.7.0",
     "moxios": "^0.4.0",
-    "sinon": "^7.1.1",
-    "serverless-azure-functions": "*"
+    "serverless-azure-functions": "*",
+    "sinon": "^7.1.1"
   },
   "scripts": {
     "test": "mocha"
