@@ -9,7 +9,7 @@ module.exports.getjetphoto = async (event, context, callback) => {
     const result = await retriever.getjetphotos(tailNum)
     if (!Array.isArray(result)) {
       console.log(`Retriever error ${result}`)
-      response.statusCode = result.match(/\[(\d+)\]/)[1] || 400
+      response.statusCode = +result.match(/\[(\d+)\]/)[1] || 400
       response.body = result
       callback(null, response)
     } else if (result.length === 0) {
