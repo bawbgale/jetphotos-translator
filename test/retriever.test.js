@@ -1,5 +1,8 @@
 const chai = require('chai')
+const sinonChai = require('sinon-chai')
 const expect = chai.expect
+chai.use(sinonChai)
+
 const moxios = require('moxios')
 const sandbox = require('sinon').createSandbox()
 
@@ -79,8 +82,8 @@ describe('getjetphotos', () => {
     const result = await retriever.getjetphotos(tailNum, true)
 
     expect(result).to.eql(expectedPhotos)
-    sandbox.assert.calledOnce(cacher.save)
-    sandbox.assert.calledWith(cacher.save, tailNum, mockData)
+    expect(cacher.save).to.have.been.calledOnce()
+    expect(cacher.save).to.have.been.calledWith(tailNum, mockData)
   }))
 
   it('optionally extracts from cache if page found there', mochaAsync(async () => {
@@ -93,9 +96,9 @@ describe('getjetphotos', () => {
     const result = await retriever.getjetphotos(tailNum, true)
 
     expect(result).to.eql(expectedPhotos)
-    sandbox.assert.calledOnce(cacher.exists)
-    sandbox.assert.calledWith(cacher.exists, tailNum)
-    sandbox.assert.calledOnce(cacher.retrieve)
-    sandbox.assert.calledWith(cacher.retrieve, tailNum)
+    expect(cacher.exists).to.have.been.calledOnce()
+    expect(cacher.exists).to.have.been.calledWith(tailNum)
+    expect(cacher.retrieve).to.have.been.calledOnce()
+    expect(cacher.retrieve).to.have.been.calledWith(tailNum)
   }))
 })
