@@ -1,10 +1,10 @@
 const chai = require('chai')
 const expect = chai.expect
 const moxios = require('moxios')
-const fs = require('fs')
-const mockfs = require('mock-fs')
+const sandbox = require('sinon').createSandbox()
 
 const retriever = require('../retriever.js')
+const cacher = require('../cacher.js')
 
 const mochaAsync = (fn) => {
   return done => {
@@ -52,6 +52,7 @@ describe('getjetphotos', () => {
 
   afterEach(() => {
     moxios.uninstall()
+    sandbox.restore()
   })
 
   it('extracts photo URLs from jetphotos', mochaAsync(async () => {
@@ -66,51 +67,35 @@ describe('getjetphotos', () => {
     expect(result).to.eql(expectedPhotos)
   }))
 
-  it('saves pages to cache', mochaAsync(async () => {
-    mockfs({
-      'cache': {
-        'cachedTailNum.html': cachedPage
-      }
-    })
-
+  it('optionally saves pages to cache', mochaAsync(async () => {
     moxios.wait(() => {
       const request = moxios.requests.mostRecent()
       request.respondWith({ status: 200, response: mockData })
     })
+    sandbox.stub(cacher, 'save')
+    const tailNum = 'uncachedTailNum'
+    const expectedPhotos = ['photo_url1', 'photo_url2']
 
-    let tailNum = 'uncachedTailNum'
-    let expectedPhotos = ['photo_url1', 'photo_url2']
-    let result = await retriever.getjetphotos(tailNum, true)
+    const result = await retriever.getjetphotos(tailNum, true)
+
     expect(result).to.eql(expectedPhotos)
-    fs.readFile(`cache/${tailNum}.html`, 'utf8', (err, fileData) => {
-      if (err) throw err
-      expect(fileData).to.eql(mockData)
-    })
+    sandbox.assert.calledOnce(cacher.save)
+    sandbox.assert.calledWith(cacher.save, tailNum, mockData)
   }))
 
-  it('extracts from cache if page found there', mochaAsync(async () => {
+  it('optionally extracts from cache if page found there', mochaAsync(async () => {
+    sandbox.stub(cacher, 'retrieve').returns([null, cachedPage])
+    sandbox.stub(cacher, 'exists').returns(true)
 
-    mockfs({
-      'cache': {
-        'cachedTailNum.html': cachedPage
-      }
-    })
+    const tailNum = 'cachedTailNum'
+    const expectedPhotos = ['cached_photo_url1', 'cached_photo_url2']
 
-    moxios.wait(() => {
-      const request = moxios.requests.mostRecent()
-      request.respondWith({ status: 200, response: mockData })
-    })
+    const result = await retriever.getjetphotos(tailNum, true)
 
-    let tailNum = 'cachedTailNum'
-    let expectedPhotos = ['cached_photo_url1', 'cached_photo_url2']
-    let result = await retriever.getjetphotos(tailNum, true)
     expect(result).to.eql(expectedPhotos)
-
-    tailNum = 'uncachedTailNum'
-    expectedPhotos = ['photo_url1', 'photo_url2']
-    result = await retriever.getjetphotos(tailNum)
-    expect(result).to.eql(expectedPhotos)
-
-    mockfs.restore()
+    sandbox.assert.calledOnce(cacher.exists)
+    sandbox.assert.calledWith(cacher.exists, tailNum)
+    sandbox.assert.calledOnce(cacher.retrieve)
+    sandbox.assert.calledWith(cacher.retrieve, tailNum)
   }))
 })

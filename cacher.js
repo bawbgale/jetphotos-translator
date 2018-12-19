@@ -32,6 +32,6 @@ module.exports.retrieve = (tailNum) => {
     const fileData = fs.readFileSync(filename, 'utf8')
     return [null, fileData]
   } catch (error) {
-    return error
+    return [error]
   }
 }
