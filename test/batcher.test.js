@@ -41,8 +41,15 @@ describe('batcher', () => {
     })
     let retrieverStub = sandbox.stub(retriever, 'getjetphotos')
     retrieverStub.withArgs('0PhotoTail').resolves([])
-    retrieverStub.withArgs('1PhotoTail').resolves(['photo_url1.1'])
-    retrieverStub.withArgs('2PhotoTail').resolves(['photo_url2.1', 'photo_url2.2'])
+    retrieverStub.withArgs('1PhotoTail').resolves(
+      [
+        { photo_url: 'photo_url1.1', photog: 'Photographer Name 1.1' }
+      ])
+    retrieverStub.withArgs('2PhotoTail').resolves(
+      [
+        { photo_url: 'photo_url2.1', photog: 'Photographer Name 2.1' },
+        { photo_url: 'photo_url2.2', photog: 'Photographer Name 2.2' }
+      ])
     retrieverStub.withArgs('ErrTail').resolves('Error message')
   })
 

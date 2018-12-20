@@ -32,7 +32,10 @@ describe('handler', () => {
       expect(err).to.be.null()
       expect(response).to.eql(expectedResponse)
     }
-
+    let mockRetrieverResponse = [
+      { photo_url: 'photo_url1', photog: 'Photographer Name 1' },
+      { photo_url: 'photo_url2', photog: 'Photographer Name 2' }
+    ]
     let event
 
     beforeEach(() => {
@@ -47,13 +50,13 @@ describe('handler', () => {
 
     it('returns a web page with a photo of the aircraft with the given tail number (event prop)', mochaAsync(async () => {
       event.tailNum = tailNum
-      sandbox.stub(retriever, 'getjetphotos').resolves(['photo_url1', 'photo_url2'])
+      sandbox.stub(retriever, 'getjetphotos').resolves(mockRetrieverResponse)
       await handler.getjetphoto(event, context, callback)
     }))
 
     it('returns a web page with a photo of the aircraft with the given tail number (query param)', mochaAsync(async () => {
       event.queryStringParameters.tailNum = tailNum
-      sandbox.stub(retriever, 'getjetphotos').resolves(['photo_url1', 'photo_url2'])
+      sandbox.stub(retriever, 'getjetphotos').resolves(mockRetrieverResponse)
       await handler.getjetphoto(event, context, callback)
     }))
 
@@ -61,7 +64,7 @@ describe('handler', () => {
       let body = {}
       body.tailNum = tailNum
       event.body = JSON.stringify(body)
-      sandbox.stub(retriever, 'getjetphotos').resolves(['photo_url1', 'photo_url2'])
+      sandbox.stub(retriever, 'getjetphotos').resolves(mockRetrieverResponse)
       await handler.getjetphoto(event, context, callback)
     }))
 

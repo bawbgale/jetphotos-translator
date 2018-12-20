@@ -10,7 +10,7 @@ module.exports.getjetphotos = async (tailNum, useCache = false) => {
   const [err, page] = (useCache && cacher.exists(tailNum))
     ? cacher.retrieve(tailNum)
     : await retrieve(tailNum, useCache)
-  const photos = err || extractPhotos(page)
+  const photos = err || extractPhotosPhotogs(page)
   return photos
 }
 
@@ -49,4 +49,14 @@ function extractPhotos (data) {
     photos.push($(el).attr('src'))
   })
   return photos
+}
+
+function extractPhotosPhotogs (data) {
+  const $ = cheerio.load(data)
+  return $('div.result').map((i, el) => {
+    let result = {}
+    result.photo_url = $('img.result__photo', el).attr('src')
+    result.photog = $('span.result__infoListText--photographer', el).text()
+    return result
+  }).get()
 }
