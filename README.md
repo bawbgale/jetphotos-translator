@@ -1,6 +1,6 @@
 # jetphotos-translator
 
-Given an aircraft tail number, this gets photo urls from jetphotos.com
+Given an aircraft tail number, this gets photo urls and photographer name from jetphotos.com. Function returns the first image as an HTML page with image tag and photographer name in caption. Batch mode returns CSV of tail numbers, photo URLs, and photographer names.
 
 Uses [Serverless](https://serverless.com/) framework
 
@@ -17,6 +17,18 @@ which pretty much just does:
 ## Invoke Photo function locally
 `serverless invoke local --function getjetphoto --data '{"tailNum": "<registration number>"}'`
 
+Returns an HTML-Gateway-ready response object:
+
+```
+{
+    "headers": {
+        "Content-Type": "text/html"
+    },
+    "statusCode": 200,
+    "body": "<html><body>...</body></html>"
+}
+```
+
 ## Invoke on batch of tail numbers in CSV file 
 `node batcher.js getjetphotobatch [path_to_input_file (default: tail_numbers.csv)] [tail_number_column (default: 'Tail Number')]`
 
@@ -24,6 +36,6 @@ Processes a CSV file of tail numbers and outputs a CSV with potentially multiple
 
 Outputs two files:
 `<input_filename>_status.csv` - Copy of the input file with a 'Status' column appended
-`<imput_filename>_photos.csv` - All the retrieved photo URLs for each tail number that has photos. Columns: tailNum, photoUrl
+`<imput_filename>_photos.csv` - All the retrieved photo URLs for each tail number that has photos. Columns: tailNum, photoUrl, photograher
 
 Batch mode now keeps a local cache of retrieved pages to avoid repeatedly re-requesting them.
