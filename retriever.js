@@ -56,7 +56,7 @@ function extractPhotosPhotogs (data) {
   return $('div.result').map((i, el) => {
     let result = {}
     result.photo_url = $('img.result__photo', el).attr('src')
-    result.photog = $('span.result__infoListText--photographer', el).text()
+    result.photog = $('span.result__infoListText--photographer', el).first().text()
     return result
   }).get()
 }
