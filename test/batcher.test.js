@@ -29,10 +29,10 @@ foo,2PhotoTail,Success\r
 bar,ErrTail,Retriever error Error message`
 
 let outputPhotosFilename = 'tail_numbers.photos.1.csv'
-let outputPhotosCSV = `tailNum,photoUrl\r
-1PhotoTail,photo_url1.1\r
-2PhotoTail,photo_url2.1\r
-2PhotoTail,photo_url2.2`
+let outputPhotosCSV = `tailNum,photoUrl,photographer\r
+1PhotoTail,photo_url1.1,Photographer Name 1.1\r
+2PhotoTail,photo_url2.1,Photographer Name 2.1\r
+2PhotoTail,photo_url2.2,Photographer Name 2.2`
 
 describe('batcher', () => {
   beforeEach(() => {
@@ -67,10 +67,10 @@ describe('batcher', () => {
   it('writes status and photo CSVs', (done) => {
     batcher.getjetphotobatch(inputFilename, tailNumCol, () => {
       try {
-      let outputStatus = fs.readFileSync(outputStatusFilename, 'utf8')
-      let outputPhotos = fs.readFileSync(outputPhotosFilename, 'utf8')
-      expect(outputStatus).to.eql(outputStatusCSV)
-      expect(outputPhotos).to.eql(outputPhotosCSV)
+        let outputStatus = fs.readFileSync(outputStatusFilename, 'utf8')
+        let outputPhotos = fs.readFileSync(outputPhotosFilename, 'utf8')
+        expect(outputStatus).to.eql(outputStatusCSV)
+        expect(outputPhotos).to.eql(outputPhotosCSV)
         return done()
       } catch (e) {
         return done(e)

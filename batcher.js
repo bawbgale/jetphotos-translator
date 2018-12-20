@@ -105,7 +105,8 @@ module.exports.getjetphotobatch = (inputFile = 'tail_numbers.csv',
               let photoArray = aircraft.photoUrlBatch.map(photo => {
                 return {
                   tailNum: aircraft.tailNum,
-                  photoUrl: photo.photo_url
+                  photoUrl: photo.photo_url,
+                  photographer: photo.photog
                 }
               })
               photosUrlList.push.apply(photosUrlList, photoArray)
