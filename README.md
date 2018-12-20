@@ -35,7 +35,8 @@ Returns an HTML-Gateway-ready response object:
 Processes a CSV file of tail numbers and outputs a CSV with potentially multiple photos URLs per tail number, plus a status log.
 
 Outputs two files:
-`<input_filename>_status.csv` - Copy of the input file with a 'Status' column appended
-`<imput_filename>_photos.csv` - All the retrieved photo URLs for each tail number that has photos. Columns: tailNum, photoUrl, photograher
+
+* `<input_filename>_status.csv` - Copy of the input file with a 'Status' column appended
+* `<imput_filename>_photos.csv` - All the retrieved photo URLs for each tail number that has photos. Columns: tailNum, photoUrl, photograher
 
 Batch mode now keeps a local cache of retrieved pages to avoid repeatedly re-requesting them.
