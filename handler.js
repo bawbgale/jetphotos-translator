@@ -64,7 +64,12 @@ module.exports.getjetphotoazure = async (context, req) => {
 }
 
 function imgTag (photo) {
-  return `<img style="max-width: 500px;" src="https:${photo.photo_url}"/>`
+  let html = `
+    <figure>
+      <img style="max-width: 500px;" src="https:${photo.photo_url}" alt="">
+      <figcaption>Photo by ${photo.photog}</figcaption>
+    </figure>`
+  return html
 }
 
 function wrapHtml (content) {

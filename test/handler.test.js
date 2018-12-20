@@ -5,6 +5,9 @@ const expect = chai.expect
 chai.use(sinonChai)
 chai.use(dirtyChai)
 
+const HtmlDiffer = require('@markedjs/html-differ').HtmlDiffer
+const htmlDiffer = new HtmlDiffer()
+
 const sandbox = require('sinon').createSandbox()
 const handler = require('../handler.js')
 const retriever = require('../retriever.js')
@@ -21,16 +24,28 @@ describe('handler', () => {
   describe('getjetphoto', () => {
     const context = {}
     const tailNum = '1234'
+    const expectedHTML = `
+      <html>
+        <body>
+          <figure>
+            <img style="max-width: 500px;" src="https:photo_url1" alt="">
+            <figcaption>Photo by Photographer Name 1</figcaption>
+          </figure>
+        </body>
+      </html>`
+
     let expectedResponse = {
       headers: { 'Content-Type': 'text/html' },
       statusCode: 200,
-      body: '<html><body><img style="max-width: 500px;" src="https:photo_url1"/></body></html>'
+      body: expectedHTML
     }
     let callback = (err, response) => {
       expect(retriever.getjetphotos).to.have.been.calledOnce()
       expect(retriever.getjetphotos).to.have.been.calledWith(tailNum)
       expect(err).to.be.null()
-      expect(response).to.eql(expectedResponse)
+      expect(response.headers).to.eql(expectedResponse.headers)
+      expect(response.statusCode).to.eql(expectedResponse.statusCode)
+      expect(htmlDiffer.isEqual(response.body, expectedResponse.body)).to.be.true()
     }
     let mockRetrieverResponse = [
       { photo_url: 'photo_url1', photog: 'Photographer Name 1' },
