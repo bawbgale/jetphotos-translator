@@ -16,7 +16,9 @@ let bottleneckOptions = {
 }
 const limiter = new Bottleneck(bottleneckOptions)
 
-module.exports.getjetphotobatch = (inputFile = 'tail_numbers.csv', tailNumCol = 'Tail Number') => {
+module.exports.getjetphotobatch = (inputFile = 'tail_numbers.csv',
+                                   tailNumCol = 'Tail Number',
+                                   done = () => {}) => {
   // read filename from command line input (start with hardcoded file name)
   fs.readFile(inputFile, 'utf8', (err, fileData) => {
     if (err) throw err
@@ -114,14 +116,18 @@ module.exports.getjetphotobatch = (inputFile = 'tail_numbers.csv', tailNumCol = 
           // path/foo.csv => path/foo.status.1.csv & path/foo.photos.1.csv
           // path/foo.statusN.csv => path/foo.status.N+1.csv & path/foo.photos.N+1.csv
           const [root, iteration] = filenameParser(inputFile)
-          outputCsv(aircraftStatusList, root, 'status', iteration)
-          outputCsv(photosUrlList, root, 'photos', iteration)
-
-          if (errorCount > 0) {
-            console.log(`Encountered ${errorCount} errors`)
-            console.log(`You can retry only those tail numbers by running:`)
-            console.log(`node batcher.js getjetphotobatch '${root}.status.${iteration}.csv' '${tailNumCol}'`)
-          }
+          let outputPromises = [
+            outputCsv(aircraftStatusList, root, 'status', iteration),
+            outputCsv(photosUrlList, root, 'photos', iteration)
+          ]
+          Promise.all(outputPromises).then(() => {
+            if (errorCount > 0) {
+              console.log(`Encountered ${errorCount} errors`)
+              console.log(`You can retry only those tail numbers by running:`)
+              console.log(`node batcher.js getjetphotobatch '${root}.status.${iteration}.csv' '${tailNumCol}'`)
+            }
+            done()
+          })
         })
 
         const filenameParser = (inputFile) => {
@@ -131,13 +137,11 @@ module.exports.getjetphotobatch = (inputFile = 'tail_numbers.csv', tailNumCol = 
           return [root, increment]
         }
 
-        const outputCsv = (data, root, suffix, iteration) => {
+        const outputCsv = async (data, root, suffix, iteration) => {
           let csv = Papa.unparse(data)
           let filename = root + '.' + suffix + '.' + iteration + '.csv'
-          fs.writeFile(filename, csv, (err) => {
-            if (err) throw err
-            console.log('Saved file:', filename)
-          })
+          fs.writeFileSync(filename, csv, 'utf8')
+          console.log('Saved file:', filename)
         }
       }
     })
