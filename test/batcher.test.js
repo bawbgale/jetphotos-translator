@@ -66,11 +66,15 @@ describe('batcher', () => {
 
   it('writes status and photo CSVs', (done) => {
     batcher.getjetphotobatch(inputFilename, tailNumCol, () => {
+      try {
       let outputStatus = fs.readFileSync(outputStatusFilename, 'utf8')
       let outputPhotos = fs.readFileSync(outputPhotosFilename, 'utf8')
       expect(outputStatus).to.eql(outputStatusCSV)
       expect(outputPhotos).to.eql(outputPhotosCSV)
-      done()
+        return done()
+      } catch (e) {
+        return done(e)
+      }
     })
   })
 
