@@ -32,11 +32,11 @@ Returns an HTML-Gateway-ready response object:
 ## Invoke on batch of tail numbers in CSV file 
 `node batcher.js getjetphotobatch [path_to_input_file (default: tail_numbers.csv)] [tail_number_column (default: 'Tail Number')]`
 
-Processes a CSV file of tail numbers and outputs a CSV with potentially multiple photos URLs per tail number, plus a status log.
+Processes a CSV file of tail numbers and outputs a CSV with potentially multiple photos URLs per tail number, plus a status log. In case of errors, the status log can be fed back through for another pass, which will skip the successfully processed items.
 
 Outputs two files:
 
-* `<input_filename>_status.csv` - Copy of the input file with a 'Status' column appended
-* `<imput_filename>_photos.csv` - All the retrieved photo URLs for each tail number that has photos. Columns: tailNum, photoUrl, photograher
+* `<input_filename>_status.<pass_number>.csv` - Copy of the input file with a 'Status' column appended
+* `<imput_filename>_photos.<pass_number>.csv` - All the retrieved photo URLs for each tail number that has photos. Columns: tailNum, photoUrl, photograher
 
 Batch mode now keeps a local cache of retrieved pages to avoid repeatedly re-requesting them.
