@@ -25,13 +25,13 @@ plugins:
   - serverless-azure-functions
 
 # you can add packaging information here
-#package:
+package:
 #  include:
 #    - include-me.js
 #    - include-me-dir/**
-#  exclude:
+ exclude:
 #    - exclude-me.js
-#    - exclude-me-dir/**
+   - cache/**
 
 functions:
   getjetphoto:
