@@ -63,6 +63,40 @@ module.exports.getjetphotoazure = async (context, req) => {
   }
 }
 
+exports.getjetphotogoogle = async (req, res) => {
+  console.log(req)
+  if (req.query.tailNum || req.body.tailNum) {
+    const tailNum = (req.query.tailNum || req.body.tailNum)
+    const result = await retriever.getjetphotos(tailNum)
+    console.log(tailNum)
+    if (!Array.isArray(result)) {
+      console.log(`Retriever error ${result}`)
+      return res
+        .status(result.match(/\[(\d+)\]/)[1] || 400)
+        .type('text/html')
+        .send(result)
+    } else if (result.length === 0) {
+      console.log('No photos :-(')
+      return res
+        .status(204)
+        .type('text/html')
+        .send('No photos :-(')
+    } else {
+      console.log(`Retrieved ${result.length} photo URLs`)
+      return res
+        .status(200)
+        .type('text/html')
+        .send(wrapHtml(imgTag(result[0])))
+    }
+  } else {
+    console.log('No tailNum')
+    return res
+      .status(400)
+      .type('text/html')
+      .send('Please pass a tail number on the query string or in the request body')
+  }
+}
+
 function imgTag (photo) {
   let html = `
     <figure>
