@@ -19,6 +19,6 @@ package:
 
 functions:
   getjetphoto:
-    handler: getjetphotogoogle
+    handler: getjetphoto_google 
     events:
       - http: path # the value of this key is ignored. It is the presence of the http key that matters to serverless.

@@ -35,7 +35,7 @@ package:
 
 functions:
   getjetphoto:
-    handler: handler.getjetphotoazure
+    handler: handler.getjetphoto_azure
     events:
       - http: true
         x-azure-settings:
